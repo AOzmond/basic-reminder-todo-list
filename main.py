@@ -45,8 +45,25 @@ class ReminderApp:
             self.reminder_listbox.insert(self.reminders[reminder_name]['label'], f"{reminder_name}: {timeformat}")
             self.root.update()
             time.sleep(1)
-        messagebox.showinfo("Reminder", f"Reminder: {reminder_name}")
-        self.remove_reminder()
+        self.show_reminder_popup(reminder_name)
+
+    def show_reminder_popup(self, reminder_name):
+        popup = tk.Toplevel()
+        popup.title("Reminder")
+        popup.geometry("200x150")
+        message_label = tk.Label(popup, text=f"Reminder: {reminder_name}", font=self.font)
+        message_label.pack()
+        acknowledge_button = tk.Button(popup, text="Acknowledge", command=popup.destroy, font=self.font)
+        acknowledge_button.pack()
+        reset_button = tk.Button(popup, text="Reset", command=lambda: self.reset_reminder(reminder_name, popup), font=self.font)
+        reset_button.pack()
+
+    def reset_reminder(self, reminder_name, popup):
+        reminder_time = simpledialog.askfloat("Reminder", "Enter new reminder time in minutes:", parent=self.root)
+        if reminder_time:
+            self.reminders[reminder_name]['time'] = reminder_time
+            threading.Thread(target=self.start_countdown, args=(reminder_name, reminder_time * 60)).start()
+        popup.destroy()
 
 
 if __name__ == "__main__":
